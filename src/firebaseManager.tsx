@@ -6,21 +6,6 @@ import { useEffect, useRef, useState } from 'react';
 import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { getBlob, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// const firebaseConfig = {
-//   apiKey: 'AIzaSyARmNyKj3YOoyFrIuLkVqZZBvIhxUaLNUI',
-//   authDomain: 'ie-test-fc7d6.firebaseapp.com',
-//   projectId: 'ie-test-fc7d6',
-//   storageBucket: 'ie-test-fc7d6.appspot.com',
-//   messagingSenderId: '653249112564',
-//   appId: '1:653249112564:web:1c30560f0e0b8f0956b1a1',
-//   measurementId: 'G-6W6GJSTZD4',
-// };
-
 const firebaseConfig = {
   apiKey: 'AIzaSyCYbjhyEy9JOrHYVt-43Gj5oQQ9HIsgTyI',
   authDomain: 'infrared-explorer.firebaseapp.com',
@@ -57,14 +42,22 @@ const Manager = () => {
     });
   };
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageSrc] = useState<any>(null);
 
   // 60889ce5be8811002206f25a
   const read = async () => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      imgagesRef.current.push(reader.result);
+    };
+
     for (let i = 1; i <= 20; i++) {
-      const pathReference = ref(storage, `60889ce5be8811002206f25a/data_${i}.png`);
-      const url = await getDownloadURL(pathReference);
-      urlsRef.current.push(url);
+      // const pathReference = ref(storage, `60889ce5be8811002206f25a/data_${i}.png`);
+      // const url = await getDownloadURL(pathReference);
+      // urlsRef.current.push(url);
+      const blob = await getBlob(ref(storage, `60889ce5be8811002206f25a/data_${i}.png`));
+      reader.readAsDataURL(blob);
     }
   };
 
@@ -124,7 +117,7 @@ const Manager = () => {
 
   const [show, setShow] = useState(false);
   const [index, setIndex] = useState(0);
-  const urlsRef = useRef<string[]>([]);
+  const imgagesRef = useRef<any>([]);
 
   const next = (n: number) => {
     const next = n + 1;
@@ -135,14 +128,14 @@ const Manager = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   return (
     <>
+      {signed ? <button onClick={handleSignOut}>signOut</button> : <button onClick={signIn}>signIn</button>}
+
       {signed && (
         <>
-          <button onClick={upload}>upload images</button>
-          <button onClick={read}>read</button>
+          {/* <button onClick={upload}>upload images</button> */}
+          <button onClick={read}>fetch</button>
         </>
       )}
-      <button onClick={signIn}>signIn</button>
-      <button onClick={handleSignOut}>signOut</button>
       <button onClick={() => setShow((b) => !b)}>show</button>
       <button onClick={() => setIndex((n) => Math.max(0, n - 1))}>prev</button>
       <button onClick={() => setIndex(next)}>next</button>
@@ -165,7 +158,8 @@ const Manager = () => {
         stop
       </button>
       <div>current index: {index}</div>
-      {show && <img src={urlsRef.current[index]} />}
+      {show && <img src={imgagesRef.current[index]} />}
+      {/* {show && imageUrl && <img src={imageUrl} />} */}
     </>
   );
 };
