@@ -5,6 +5,8 @@ import { getAnalytics } from 'firebase/analytics';
 import { useEffect, useRef, useState } from 'react';
 import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { getBlob, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import useCommonStore from './stores/common';
+import { User } from './types';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCYbjhyEy9JOrHYVt-43Gj5oQQ9HIsgTyI',
@@ -72,11 +74,18 @@ const Manager = () => {
         // ...
         console.log('user signed in', user);
         setSigned(true);
+        useCommonStore.getState().setUser({
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+        } as User);
       } else {
         // User is signed out
         // ...
         setSigned(false);
         console.log('user signed out');
+        useCommonStore.getState().setUser(null);
       }
     });
   }, []);
