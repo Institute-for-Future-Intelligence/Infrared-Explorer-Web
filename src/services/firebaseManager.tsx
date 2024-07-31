@@ -5,8 +5,8 @@ import { getAnalytics } from 'firebase/analytics';
 import { useEffect, useRef, useState } from 'react';
 import { GoogleAuthProvider, getAuth, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { getBlob, getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import useCommonStore from './stores/common';
-import { User } from './types';
+import useCommonStore from '../stores/common';
+import { User } from '../types';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCYbjhyEy9JOrHYVt-43Gj5oQQ9HIsgTyI',
