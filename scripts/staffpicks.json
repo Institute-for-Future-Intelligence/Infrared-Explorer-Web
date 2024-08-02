@@ -1,0 +1,247 @@
+[
+  {
+    "name": "60bff8c36902ff0022f4a077",
+    "id": "clip/60bff8c3f20d4ed2d98961b4",
+    "display_name": "Thermogenesis",
+    "author": "Charles Xie",
+    "description": "Moth cools down",
+    "subject": "biology",
+    "duration": 455,
+    "currentFrameNumber": 1,
+    "date": "6/8/2021"
+  },
+  {
+    "name": "60bff6cc6902ff0022f49e07",
+    "id": "clip/60bff6ccf20d4ed2d9888b78",
+    "display_name": "Thermogenesis",
+    "author": "Charles Xie",
+    "description": "Moth warms up",
+    "subject": "biology",
+    "duration": 341,
+    "currentFrameNumber": 1,
+    "date": "6/8/2021"
+  },
+  {
+    "name": "60aebcd8a4b6800022108efb",
+    "id": "clip/60aef80ba4b680002210b017",
+    "display_name": "Herschel's Experiment",
+    "author": "Rundong Jiang",
+    "description": "The discovery of infrared light (NIR).",
+    "subject": "physics",
+    "duration": 12,
+    "currentFrameNumber": 40,
+    "date": "5/26/2021"
+  },
+  {
+    "name": "608aac141ec2370022900407",
+    "id": "clip/608aac1a2d61b32aace24393",
+    "display_name": "Anomalous Temperature Gradient",
+    "author": "Charles Xie",
+    "description": "A persistent temperature gradient in salt solutions.",
+    "subject": "chemistry",
+    "duration": 28,
+    "currentFrameNumber": 70,
+    "date": "4/30/2021"
+  },
+  {
+    "name": "6089bb20b74eba0022d9865d",
+    "id": "clip/6089bd00b74eba0022d98ab1",
+    "display_name": "Dissolving Salt",
+    "author": "Charles Xie",
+    "description": "Dissolving salt is an endothermic process.",
+    "subject": "chemistry",
+    "duration": 70,
+    "currentFrameNumber": 100,
+    "date": "4/29/2021"
+  },
+  {
+    "name": "60898278b74eba0022d98036",
+    "id": "clip/608982782d61b32aaca374c5",
+    "display_name": "Tulips under the Sun",
+    "author": "Charles Xie",
+    "description": "The black gynoecium was more than 2°C warmer than the petals under the sun.",
+    "subject": "biology",
+    "duration": 9,
+    "currentFrameNumber": 1,
+    "date": "4/28/2021"
+  },
+  {
+    "name": "60889ce5be8811002206f25a",
+    "id": "clip/60889ce5d0101beaa742c1d8",
+    "display_name": "Grape Hyacinth",
+    "author": "Charles Xie",
+    "description": "At the end of a sunny day, grape hyacinth flowers appear to be warmer than the ambient.",
+    "subject": "biology",
+    "duration": 8,
+    "currentFrameNumber": 1,
+    "date": "4/27/2021"
+  },
+  {
+    "name": "60889e38be8811002206f291",
+    "id": "clip/6088aa3fdfbbdf0023a57778",
+    "display_name": "Yellow Daffodil",
+    "author": "Charles Xie",
+    "description": "Daffodils seem to have a different thermal pattern compared with tulips.",
+    "subject": "biology",
+    "duration": 7,
+    "currentFrameNumber": 1,
+    "date": "4/27/2021"
+  },
+  {
+    "name": "60889d2fbe8811002206f28d",
+    "id": "clip/60889d2fd0101beaa742df7d",
+    "display_name": "White Tulips",
+    "author": "Charles Xie",
+    "description": "Why do the flowers of a white tulip seem to be warmer than the leaves?",
+    "subject": "biology",
+    "duration": 7,
+    "currentFrameNumber": 1,
+    "date": "4/27/2021"
+  },
+  {
+    "name": "608da5449f5d2e00237eb06a",
+    "id": "clip/608da6219f5d2e00237eb2dc",
+    "display_name": "Freezing Point Lowering",
+    "author": "Charles Xie",
+    "description": "Salt can accelerate the melting of ice. The process lowers the temperature by a lot. This effect is often known as freezing point lowering.",
+    "subject": "chemistry",
+    "duration": 44,
+    "currentFrameNumber": 1,
+    "date": "4/26/2021"
+  },
+  {
+    "name": "608c544e405b3c00224c9b65",
+    "id": "clip/608c544e4602e3b7b71f1115",
+    "display_name": "Vapor Pressure Lowering",
+    "author": "Charles Xie",
+    "description": "The vapor pressure of a solution containing a nonvolatile solute is always less than that of the pure solvent.",
+    "subject": "chemistry",
+    "duration": 35,
+    "currentFrameNumber": 1,
+    "date": "4/26/2021"
+  },
+  {
+    "name": "608619ead530c100226504ab",
+    "id": "clip/608620fad530c10022650bac",
+    "display_name": "Newton's Law of Cooling",
+    "author": "Charles Xie",
+    "description": "A petri dish filled with warm water was placed in a larger one filled with room temperature water.",
+    "subject": "physics",
+    "duration": 1200,
+    "currentFrameNumber": 1,
+    "date": "4/25/2021"
+  },
+  {
+    "name": "6076025378844f002359a977",
+    "id": "clip/6076050578844f002359baf4",
+    "display_name": "Grayness & Sunlight Absorption",
+    "author": "Rundong Jiang",
+    "description": "Areas in different grayness absorb solar radiation differently.",
+    "subject": "physics",
+    "duration": 51,
+    "currentFrameNumber": 100,
+    "date": "4/24/2021"
+  },
+  {
+    "name": "604f8061db56060022cf59b7",
+    "id": "clip/6085a1005666f30022b7d2e3",
+    "display_name": "Reaction: Concentration Effect",
+    "author": "Rundong Jiang",
+    "description": "Reactions between baking soda and vinegar with four different concentrations.",
+    "subject": "chemistry",
+    "duration": 36,
+    "currentFrameNumber": 100,
+    "date": "4/23/2021"
+  },
+  {
+    "name": "607a24291750b00022aef3b3",
+    "id": "clip/607a2b401750b00022af0008",
+    "display_name": "Breaking Dynamic Equilibrium",
+    "author": "Charles Xie",
+    "description": "The dynamic equilibrium between evaporation and condensation of water on a piece of paper above a dish of water is broken.",
+    "subject": "chemistry",
+    "duration": 56,
+    "date": "4/16/2021"
+  },
+  {
+    "name": "607a24291750b00022aef3b3",
+    "id": "clip/607a26431750b00022aef788",
+    "display_name": "Condensation Warming",
+    "author": "Charles Xie",
+    "description": "Condensation warming: A piece of paper above a dish of water",
+    "subject": "chemistry",
+    "duration": 32,
+    "date": "4/16/2021"
+  },
+  {
+    "name": "6074625eebb67c0022feb24a",
+    "id": "clip/6074625e9fa7c80c69292bd6",
+    "display_name": "Boiling Point of Isopropyl Alcohol",
+    "author": "Charles Xie",
+    "description": "Boiling point: Water vs. isopropyl alcohol",
+    "subject": "chemistry",
+    "duration": 654,
+    "date": "4/12/2021"
+  },
+  {
+    "name": "60737a38552b8b00220a7489",
+    "id": "clip/60737a389fa7c80c69f5a6c2",
+    "display_name": "Boiling Point Elevation",
+    "author": "Charles Xie",
+    "description": "Boiling point elevation: NaCl solution vs. pure water",
+    "subject": "chemistry",
+    "duration": 376,
+    "date": "4/11/2021"
+  },
+  {
+    "name": "6070eb12028c27002245b129",
+    "id": "clip/6070eb12c5c54b865528d541",
+    "display_name": "Boiling Point",
+    "author": "Charles Xie",
+    "description": "Visualize the boiling point",
+    "subject": "chemistry",
+    "duration": 494,
+    "date": "4/9/2021"
+  },
+  {
+    "name": "606f497ac7c6d50022504cd0",
+    "id": "clip/606f6f55c7c6d50022506299",
+    "display_name": "Building Energy",
+    "author": "Charles Xie",
+    "description": "Visualize the heat exchange through the building envelope",
+    "subject": "physics",
+    "duration": 4,
+    "date": "4/8/2021"
+  },
+  {
+    "name": "606f4afbc7c6d50022504cf6",
+    "id": "clip/606f4afbc5c54b8655d23286",
+    "display_name": "Solar Potential",
+    "author": "Charles Xie",
+    "description": "Evaluate the potential solar energy output of a roof",
+    "subject": "physics",
+    "duration": 16,
+    "date": "4/8/2021"
+  },
+  {
+    "name": "605c77c3cdefdd0022d5ba05",
+    "id": "clip/605c9c50cdefdd0022d6281c",
+    "display_name": "Melting of Ice",
+    "author": "Rundong Jiang",
+    "description": "A petri dish filled with water was frozen into ice. And then it was taken out to melt at room temperature.",
+    "subject": "chemistry",
+    "duration": 1060,
+    "date": "3/25/2021"
+  },
+  {
+    "name": "604038bba4129a002275026a",
+    "id": "clip/6054c3e250f34d002276a681",
+    "display_name": "Latent Heat",
+    "author": "Rundong Jiang",
+    "description": "This experiment shows the comparison of temperature increasing of three systems: pure ice, table salt solution, and baking soda solution.",
+    "subject": "chemistry",
+    "currentFrameNumber": 500,
+    "duration": 3047,
+    "date": "3/19/2021"
+  }
+]

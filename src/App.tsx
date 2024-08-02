@@ -5,25 +5,37 @@ import Layout from './layouts/layout';
 import './services/firebase';
 import HomePage from './pages/homePage';
 import MyExperimentsList from './pages/myExperimentsList';
+import ExperimentAnalyzer from './pages/experimentAnalyzer';
 
 const App = () => {
-  const router = createBrowserRouter([
-    {
-      path: '/infrared-explorer-web',
-      element: <Layout />,
-      errorElement: <ErrorPage />,
-      children: [
-        {
-          path: '',
-          element: <HomePage />,
-        },
-        {
-          path: 'myExperimentsList',
-          element: <MyExperimentsList />,
-        },
-      ],
-    },
-  ]);
+  const router = createBrowserRouter(
+    [
+      {
+        path: '',
+        element: <Layout />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            path: '',
+            element: <HomePage />,
+          },
+          {
+            path: 'myExperimentsList',
+            element: <MyExperimentsList />,
+          },
+          {
+            path: 'experiments/:expId',
+            element: <ExperimentAnalyzer />,
+          },
+          {
+            path: '*',
+            element: <ErrorPage />,
+          },
+        ],
+      },
+    ],
+    { basename: '/infrared-explorer-web' },
+  );
 
   return <RouterProvider router={router} />;
 };

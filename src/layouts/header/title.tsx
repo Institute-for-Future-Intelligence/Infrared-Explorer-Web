@@ -4,13 +4,13 @@ const Title = () => {
   const navigate = useNavigate();
 
   return (
-    <div
+    <h2
       onClick={() => {
         navigate('');
       }}
     >
       Infrared Explorer
-    </div>
+    </h2>
   );
 };
 
