@@ -2,20 +2,30 @@ import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from
 import { useEffect } from 'react';
 import { User } from '../../types';
 import useCommonStore from '../../stores/common';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { firebaseDatabase } from '../../services/firebase';
 
 const SignInButton = () => {
   const auth = getAuth();
   const provider = new GoogleAuthProvider();
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        useCommonStore.getState().setUser({
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-        } as User);
+        console.log('changed');
+        const usersRef = collection(firebaseDatabase, 'users');
+        const q = query(usersRef, where('email', '==', user.email));
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          console.log(doc.id, ' => ', doc.data());
+          useCommonStore.getState().setUser({
+            id: doc.data().id,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+          } as User);
+        });
       } else {
         useCommonStore.getState().setUser(null);
       }

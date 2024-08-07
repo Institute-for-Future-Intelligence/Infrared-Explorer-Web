@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import showcases from '../../scripts/showcases.json';
+import showcases from '../../db/showcases.json';
 import { useEffect, useState } from 'react';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { firebaseStorage } from '../services/firebase';

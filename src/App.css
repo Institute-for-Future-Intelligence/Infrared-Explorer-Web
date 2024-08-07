@@ -49,12 +49,12 @@ body {
   justify-content: center;
 }
 
-/* showcase */
-.showcase-wrapper {
+
+/* card list */
+.card-list-wrapper {
   width: calc(100vw - 48px);
 }
 
-/* card list */
 .card-list {
   display: flex;
   flex-wrap: wrap;
