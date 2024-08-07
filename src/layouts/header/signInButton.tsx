@@ -12,13 +12,11 @@ const SignInButton = () => {
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log('changed');
         const usersRef = collection(firebaseDatabase, 'users');
         const q = query(usersRef, where('email', '==', user.email));
 
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-          console.log(doc.id, ' => ', doc.data());
           useCommonStore.getState().setUser({
             id: doc.data().id,
             displayName: user.displayName,

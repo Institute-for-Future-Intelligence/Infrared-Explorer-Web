@@ -1,11 +1,13 @@
-import { useParams } from 'react-router-dom';
-import showcases from '../../db/showcases.json';
 import { useEffect, useState } from 'react';
+import { firebaseStorage } from '../../services/firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
-import { firebaseStorage } from '../services/firebase';
+import showcases from '../../../db/showcases.json';
 import ReactPlayer from 'react-player';
+import { useParams } from 'react-router-dom';
 
-const ExperimentAnalyzer = () => {
+interface Props {}
+
+const VideoPlayer = () => {
   const { expId } = useParams();
 
   const [videoURL, setVideoURL] = useState<string | null>(null);
@@ -17,7 +19,6 @@ const ExperimentAnalyzer = () => {
 
   useEffect(() => {
     if (!expId) return;
-
     const experiment = findExperiment(expId);
     if (!experiment) return;
 
@@ -30,4 +31,4 @@ const ExperimentAnalyzer = () => {
   return <ReactPlayer url={videoURL} controls />;
 };
 
-export default ExperimentAnalyzer;
+export default VideoPlayer;

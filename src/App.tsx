@@ -5,7 +5,7 @@ import Layout from './layouts/layout';
 import './services/firebase';
 import HomePage from './pages/homePage';
 import MyExperimentsList from './pages/myExperimentsList';
-import ExperimentAnalyzer from './pages/experimentAnalyzer';
+import ExperimentAnalyzer from './pages/experimentAnalyzer/experimentAnalyzer';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -24,7 +24,7 @@ const App = () => {
             element: <MyExperimentsList />,
           },
           {
-            path: 'experiments/:expId',
+            path: 'experiments/:expType/:expId',
             element: <ExperimentAnalyzer />,
           },
           {

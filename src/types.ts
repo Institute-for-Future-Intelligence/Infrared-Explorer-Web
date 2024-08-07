@@ -5,6 +5,11 @@ export interface User {
   id: string;
 }
 
+export enum ExperimentType {
+  Video = 'video',
+  Image = 'image',
+}
+
 // interface Experiment {
 //   id: string;
 //   recordingId: string;
