@@ -39,7 +39,7 @@ const ExperimentAnalyzer = () => {
     }
   };
 
-  // console.log('experiment', experiment);
+  console.log('experiment', experiment);
   return (
     <div className="experiment-analyzer">
       <div className="left-content">left</div>

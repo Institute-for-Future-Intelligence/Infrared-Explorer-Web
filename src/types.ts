@@ -10,6 +10,8 @@ export enum ExperimentType {
   Image = 'image',
 }
 
+export type Segment = { start: number; end: number };
+
 // interface Experiment {
 //   id: string;
 //   recordingId: string;

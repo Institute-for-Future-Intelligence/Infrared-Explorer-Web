@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { firebaseStorage } from '../../../services/firebase';
 import ControlBar from './controlBar';
 import { throttle } from 'lodash';
+import { useMappingIndex } from '../hooks';
 
 type ImageSrc = string | undefined;
 
@@ -13,7 +14,8 @@ interface Props {
 const ImagePlayer = ({ experiment }: Props) => {
   const { recordingId, currentFrameNumber, duration, segments } = experiment;
 
-  const totalFrameNumber = duration * 5;
+  // only map to recording index when fetch from firebase.
+  const { lastFrameIndex, getRecordingIndex } = useMappingIndex(segments, duration);
 
   const imagesRef = useRef<ImageSrc[]>([]);
 
@@ -22,7 +24,8 @@ const ImagePlayer = ({ experiment }: Props) => {
   const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>();
 
   const fetchImageAsBlob = async (index: number) => {
-    const blob = await getBlob(ref(firebaseStorage, `recordings/${recordingId}/data_${index + 1}.png`));
+    const mappedIndex = getRecordingIndex(index);
+    const blob = await getBlob(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex + 1}.png`));
     return blob;
   };
 
@@ -40,7 +43,7 @@ const ImagePlayer = ({ experiment }: Props) => {
 
   const preload = async (index: number, preloads = 4) => {
     for (let i = index; i <= index + preloads; i++) {
-      if (imagesRef.current[i] || i >= totalFrameNumber) continue;
+      if (imagesRef.current[i] || i >= lastFrameIndex) continue;
       const blob = await fetchImageAsBlob(i);
       loadImageToArray(blob, i);
     }
@@ -51,16 +54,12 @@ const ImagePlayer = ({ experiment }: Props) => {
   };
 
   const loadFrame = async (index: number) => {
-    if (index >= totalFrameNumber) return;
+    if (index >= lastFrameIndex) return;
     const blob = await fetchImageAsBlob(index);
     loadImageToArray(blob, index, () => {
       applyCurrFrameImg(index);
     });
     preload(index + 1);
-  };
-
-  const mapToOriginalFrameIdx = (currFrameIdx: number) => {
-    const segmentMap = new Map();
   };
 
   const init = async () => {
@@ -86,7 +85,7 @@ const ImagePlayer = ({ experiment }: Props) => {
   const play = () => {
     setIsPlaying(true);
     intervalIdRef.current = setInterval(() => {
-      if (currFrameIdxRef.current >= totalFrameNumber) {
+      if (currFrameIdxRef.current >= lastFrameIndex) {
         currFrameIdxRef.current = 0;
         stop();
         return;
@@ -127,8 +126,8 @@ const ImagePlayer = ({ experiment }: Props) => {
 
         <ControlBar
           isPlaying={isPlaying}
-          currFrameNumber={currFrameIdxRef.current}
-          totalFrameNumber={totalFrameNumber}
+          currFrameIndex={currFrameIdxRef.current}
+          lastFrameIndex={lastFrameIndex}
           onClickPlayButton={handleClickPlayButton}
           onSlide={throttle(handleSlide, 100)}
         />

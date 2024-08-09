@@ -1,16 +1,15 @@
 import { ConfigProvider, Slider } from 'antd';
-import { useRef, useState } from 'react';
 import playButton from '../../../assets/play-button.svg';
 import pauseButton from '../../../assets/pause-button.svg';
 
 interface Props {
   isPlaying: boolean;
-  currFrameNumber: number;
-  totalFrameNumber: number;
+  currFrameIndex: number;
+  lastFrameIndex: number;
   onClickPlayButton: () => void;
   onSlide: (n: number) => void;
 }
-const ControlBar = ({ isPlaying, currFrameNumber, totalFrameNumber, onClickPlayButton, onSlide }: Props) => {
+const ControlBar = ({ isPlaying, currFrameIndex, lastFrameIndex, onClickPlayButton, onSlide }: Props) => {
   const toTime = (n: number | undefined) => {
     if (n === undefined) return '00:00/00:00';
     const time = Math.round(n * 0.2);
@@ -26,7 +25,7 @@ const ControlBar = ({ isPlaying, currFrameNumber, totalFrameNumber, onClickPlayB
       </div>
 
       <span style={{ color: 'white', margin: '0 8px' }}>
-        {toTime(currFrameNumber)}/{toTime(totalFrameNumber)}
+        {toTime(currFrameIndex)}/{toTime(lastFrameIndex)}
       </span>
       <ConfigProvider
         theme={{
@@ -40,8 +39,8 @@ const ControlBar = ({ isPlaying, currFrameNumber, totalFrameNumber, onClickPlayB
       >
         <Slider
           className="slider"
-          value={currFrameNumber}
-          max={totalFrameNumber}
+          value={currFrameIndex}
+          max={lastFrameIndex}
           onChange={onSlide}
           tooltip={{
             formatter: toTime,
