@@ -12,8 +12,11 @@ export enum ExperimentType {
 
 export type Segment = { start: number; end: number };
 
-// interface Experiment {
-//   id: string;
-//   recordingId: string;
-//   segments: number[][];
-// }
+export enum ExperimentThermalUnits {
+  celsius = 'celsius',
+  fahrenheit = 'fahrenheit',
+}
+
+export type Experiment = any;
+
+export type Thermometer = any;

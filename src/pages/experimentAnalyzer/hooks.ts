@@ -23,7 +23,7 @@ export const useMappingIndex = (segments: Segment[] | undefined, duration: numbe
   };
 
   const getRecordingIndex = (currIdx: number) => {
-    if (!mappingData) return currIdx;
+    if (!mappingData) return currIdx + 1;
     const { map, currSegments } = mappingData;
     for (const { start, end } of currSegments) {
       if (currIdx >= start && currIdx <= end) {

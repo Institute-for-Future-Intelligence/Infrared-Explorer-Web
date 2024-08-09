@@ -1,74 +1,99 @@
-import { getBlob, ref } from 'firebase/storage';
+import { getBlob, getBytes, ref } from 'firebase/storage';
 import { useEffect, useRef, useState } from 'react';
 import { firebaseStorage } from '../../../services/firebase';
 import ControlBar from './controlBar';
 import { throttle } from 'lodash';
 import { useMappingIndex } from '../hooks';
+import { Experiment, Thermometer } from '../../../types';
+import Pako from 'pako';
+import { INTSIZE, IR_ARRAY_HEIGHT, IR_ARRAY_WIDTH } from '../../../utils/constants';
+import { getTempFromFrameData, readArrayBufferSegment } from '../../../utils/temperatureReader';
 
 type ImageSrc = string | undefined;
+type Temperatures = string[];
 
 interface Props {
-  experiment: any;
+  experiment: Experiment;
+  thermometers: Thermometer[];
 }
 
-const ImagePlayer = ({ experiment }: Props) => {
+const ImagePlayer = ({ experiment, thermometers }: Props) => {
   const { recordingId, currentFrameNumber, duration, segments } = experiment;
 
   // only map to recording index when fetch from firebase.
   const { lastFrameIndex, getRecordingIndex } = useMappingIndex(segments, duration);
 
-  const imagesRef = useRef<ImageSrc[]>([]);
+  const cacheImageRef = useRef<ImageSrc[]>([]);
+  const cacheTemperaturesRef = useRef<Temperatures[]>([]);
 
   const currFrameIdxRef = useRef(currentFrameNumber - 1);
 
   const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>();
 
-  const fetchImageAsBlob = async (index: number) => {
+  const needThermoData = thermometers.length > 0;
+
+  const fetchThermoData = async (index: number) => {
     const mappedIndex = getRecordingIndex(index);
-    const blob = await getBlob(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex + 1}.png`));
+    const arrayBuffer = await getBytes(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex}.dat`));
+    return getTempFromFrameData(arrayBuffer);
+  };
+
+  const fetchImage = async (index: number) => {
+    const mappedIndex = getRecordingIndex(index);
+    const blob = await getBlob(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex}.png`));
     return blob;
   };
 
-  const loadImageToArray = (blob: Blob, index: number, onloadend?: () => void) => {
+  const applyImage = (index: number) => {
+    if (cacheImageRef.current[index]) {
+      setCurrFrameImg(cacheImageRef.current[index]);
+    }
+  };
+
+  const loadTemperatures = async (index: number) => {
+    const temperatures = await fetchThermoData(index);
+    cacheTemperaturesRef.current[index] = temperatures;
+  };
+
+  const loadImage = async (index: number, onloadend?: () => void) => {
+    const blob = await fetchImage(index);
     const fileReader = new FileReader();
     fileReader.onloadend = () => {
       const res = fileReader.result;
       if (res) {
-        imagesRef.current[index] = res as string;
+        cacheImageRef.current[index] = res as string;
         onloadend && onloadend();
       }
     };
     fileReader.readAsDataURL(blob);
   };
 
-  const preload = async (index: number, preloads = 4) => {
-    for (let i = index; i <= index + preloads; i++) {
-      if (imagesRef.current[i] || i >= lastFrameIndex) continue;
-      const blob = await fetchImageAsBlob(i);
-      loadImageToArray(blob, i);
+  const preloadFrame = async (start: number, length = 5) => {
+    for (let i = start; i < start + length && i < lastFrameIndex; i++) {
+      if (!cacheImageRef.current[i]) {
+        loadImage(i);
+      }
+      if (needThermoData && !cacheTemperaturesRef.current[i]) {
+        loadTemperatures(i);
+      }
     }
   };
 
-  const applyCurrFrameImg = (index: number) => {
-    setCurrFrameImg(imagesRef.current[index]);
-  };
-
-  const loadFrame = async (index: number) => {
-    if (index >= lastFrameIndex) return;
-    const blob = await fetchImageAsBlob(index);
-    loadImageToArray(blob, index, () => {
-      applyCurrFrameImg(index);
-    });
-    preload(index + 1);
-  };
-
-  const init = async () => {
-    loadFrame(currFrameIdxRef.current);
+  const applyFrame = (index: number) => {
+    if (cacheImageRef.current[index]) {
+      applyImage(index);
+    } else {
+      loadImage(index, () => applyImage(index));
+    }
+    if (needThermoData && cacheTemperaturesRef.current[index]) {
+      loadTemperatures(index);
+    }
   };
 
   // init
   useEffect(() => {
-    init();
+    applyFrame(currFrameIdxRef.current);
+    preloadFrame(currFrameIdxRef.current + 1);
   }, []);
 
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
@@ -85,18 +110,19 @@ const ImagePlayer = ({ experiment }: Props) => {
   const play = () => {
     setIsPlaying(true);
     intervalIdRef.current = setInterval(() => {
-      if (currFrameIdxRef.current >= lastFrameIndex) {
+      if (currFrameIdxRef.current > lastFrameIndex) {
         currFrameIdxRef.current = 0;
         stop();
         return;
       }
 
-      if (imagesRef.current[currFrameIdxRef.current]) {
-        applyCurrFrameImg(currFrameIdxRef.current);
+      if (cacheImageRef.current) {
+        applyFrame(currFrameIdxRef.current);
+        preloadFrame(currFrameIdxRef.current + 5, 1);
         currFrameIdxRef.current++;
-        preload(currFrameIdxRef.current + 4, 0);
       } else {
-        loadFrame(currFrameIdxRef.current);
+        applyFrame(currFrameIdxRef.current);
+        preloadFrame(currFrameIdxRef.current + 1);
       }
     }, 200);
   };
@@ -114,7 +140,10 @@ const ImagePlayer = ({ experiment }: Props) => {
 
   const handleSlide = (n: number) => {
     currFrameIdxRef.current = n;
-    loadFrame(n);
+    if (!isPlaying) {
+      applyFrame(n);
+      preloadFrame(n + 1);
+    }
   };
 
   return (
