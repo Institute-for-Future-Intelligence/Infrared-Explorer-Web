@@ -30,14 +30,14 @@ const MyExperimentsList = () => {
     fetchExperiments(user);
   }, [user]);
 
-  console.log(experiments);
+  console.log('experiments', experiments);
 
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const id = (e.target as any).id;
-    if (id) {
-      navigate(`/experiments/${ExperimentType.Image}/${id}`);
+    const expId = (e.target as any).id;
+    if (expId && user) {
+      navigate(`/experiments/${ExperimentType.Image}/${user.id}/${expId}`);
     }
   };
 

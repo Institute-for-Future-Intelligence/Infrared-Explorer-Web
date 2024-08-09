@@ -24,7 +24,7 @@ const App = () => {
             element: <MyExperimentsList />,
           },
           {
-            path: 'experiments/:expType/:expId',
+            path: 'experiments/:expType/:userId/:expId',
             element: <ExperimentAnalyzer />,
           },
           {

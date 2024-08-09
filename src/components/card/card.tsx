@@ -17,7 +17,7 @@ const Card = React.memo(({ id, url, displayName }: CardProps) => {
     reader.onloadend = () => {
       const res = reader.result;
       setDataURL(res);
-      if (res && new Blob([res.toString()]).size < 500000) {
+      if (res && new Blob([res.toString()]).size < 100000) {
         localStorage.setItem(url, res.toString());
       }
     };

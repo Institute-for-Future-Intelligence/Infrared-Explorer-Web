@@ -9,7 +9,6 @@ interface Props {}
 
 const VideoPlayer = () => {
   const { expId } = useParams();
-
   const [videoURL, setVideoURL] = useState<string | null>(null);
 
   const findExperiment = (expId: string) => {
@@ -28,7 +27,11 @@ const VideoPlayer = () => {
   }, [expId]);
 
   if (!videoURL) return <div>loading...</div>;
-  return <ReactPlayer url={videoURL} controls />;
+  return (
+    <div className="video-player-wrapper">
+      <ReactPlayer className={'react-player'} width={'100%'} height={'100%'} url={videoURL} controls />
+    </div>
+  );
 };
 
 export default VideoPlayer;

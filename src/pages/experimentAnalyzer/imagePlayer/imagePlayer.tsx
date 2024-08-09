@@ -1,9 +1,11 @@
 import { getBlob, ref } from 'firebase/storage';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { firebaseStorage } from '../../services/firebase';
+import { firebaseStorage } from '../../../services/firebase';
+import ControlBar from './controlBar';
+import { debounce, throttle } from 'lodash';
 
-type ImageSrc = string | null;
+type ImageSrc = string | undefined;
 
 interface Props {
   recordingId: string;
@@ -18,7 +20,7 @@ const ImagePlayer = ({ recordingId, currFrameNumber, duration }: Props) => {
 
   const currFrameIdxRef = useRef(currFrameNumber);
 
-  const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>(null);
+  const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>();
 
   const totalFrameNumber = duration * 5;
 
@@ -47,71 +49,87 @@ const ImagePlayer = ({ recordingId, currFrameNumber, duration }: Props) => {
     }
   };
 
-  const applyCurrFrameImg = () => {
-    setCurrFrameImg(imagesRef.current[currFrameIdxRef.current]);
+  const applyCurrFrameImg = (index: number) => {
+    setCurrFrameImg(imagesRef.current[index]);
   };
 
   const loadFrame = async (index: number) => {
     if (index >= totalFrameNumber) return;
     const blob = await fetchImageAsBlob(index);
     loadImageToArray(blob, index, () => {
-      applyCurrFrameImg();
+      applyCurrFrameImg(index);
     });
     preload(index + 1);
   };
 
+  // init
   useEffect(() => {
     loadFrame(currFrameIdxRef.current);
   }, []);
 
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  const onClickPlay = () => {
+  // stop when close
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, []);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const play = () => {
+    setIsPlaying(true);
     intervalIdRef.current = setInterval(() => {
-      currFrameIdxRef.current += 1;
       if (currFrameIdxRef.current >= totalFrameNumber) {
         currFrameIdxRef.current = 0;
+        stop();
+        return;
       }
-      applyCurrFrameImg();
-      preload(currFrameIdxRef.current + 4, 0);
+
+      if (imagesRef.current[currFrameIdxRef.current]) {
+        applyCurrFrameImg(currFrameIdxRef.current);
+        currFrameIdxRef.current++;
+        preload(currFrameIdxRef.current + 4, 0);
+      } else {
+        loadFrame(currFrameIdxRef.current);
+      }
     }, 200);
   };
 
-  const onClickStop = () => {
+  const stop = () => {
+    setIsPlaying(false);
     if (intervalIdRef.current) {
       clearInterval(intervalIdRef.current);
     }
   };
 
-  const inputRef = useRef(0);
+  const handleClickPlayButton = () => {
+    isPlaying ? stop() : play();
+  };
+
+  const handleSlide = (n: number) => {
+    currFrameIdxRef.current = n;
+    loadFrame(n);
+  };
+
   return (
-    <div>
-      <div>image player: {expId}</div>
+    <div className="image-player-wrapper">
+      <div className="image-player">
+        <div className="image-wrapper">
+          <img src={currFrameImg} />
+        </div>
 
-      <div style={{ height: '500px' }}>
-        {currFrameImg ? <img style={{ height: '500px' }} src={currFrameImg} /> : <>loading...</>}
+        <ControlBar
+          isPlaying={isPlaying}
+          currFrameNumber={currFrameIdxRef.current}
+          totalFrameNumber={totalFrameNumber}
+          onClickPlayButton={handleClickPlayButton}
+          onSlide={throttle(handleSlide, 100)}
+        />
       </div>
 
-      <button onClick={onClickPlay}>play</button>
-      <button onClick={onClickStop}>stop</button>
-
-      <input
-        onChange={(e) => {
-          inputRef.current = Number(e.target.value);
-        }}
-      ></input>
-      <button
-        onClick={() => {
-          currFrameIdxRef.current = inputRef.current;
-          loadFrame(currFrameIdxRef.current);
-        }}
-      >
-        apply
-      </button>
-
-      <div>
-        curr idx: {currFrameIdxRef.current} / {totalFrameNumber}
-      </div>
+      <div className="tool-bar"></div>
     </div>
   );
 };

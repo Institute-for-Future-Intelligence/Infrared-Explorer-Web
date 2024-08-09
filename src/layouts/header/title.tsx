@@ -1,16 +1,19 @@
 import { useNavigate } from 'react-router-dom';
+import Logo from '../../assets/lab-logo.png';
 
 const Title = () => {
   const navigate = useNavigate();
 
   return (
-    <h2
+    <div
+      className="title"
       onClick={() => {
         navigate('');
       }}
     >
-      Infrared Explorer
-    </h2>
+      <img src={Logo} />
+      <h2>Infrared Explorer</h2>
+    </div>
   );
 };
 

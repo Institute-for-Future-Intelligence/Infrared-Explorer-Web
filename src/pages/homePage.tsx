@@ -8,15 +8,15 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const id = (e.target as any).id;
-    if (id) {
-      navigate(`experiments/${ExperimentType.Video}/${id}`);
+    const expId = (e.target as any).id;
+    if (expId) {
+      navigate(`experiments/${ExperimentType.Video}/showcases/${expId}`);
     }
   };
 
   return (
     <CardListWrapper onClick={handleClick}>
-      {showcases.slice(0, 21).map((showcase) => {
+      {showcases.map((showcase) => {
         return (
           <Card
             key={showcase.id}

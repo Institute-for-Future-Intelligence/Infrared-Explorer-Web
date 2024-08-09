@@ -1,15 +1,13 @@
 import { useParams } from 'react-router-dom';
 import VideoPlayer from './videoPlayer';
-import ImagePlayer from './imagePlayer';
+import ImagePlayer from './imagePlayer/imagePlayer';
 import { ExperimentType } from '../../types';
 import { useEffect, useState } from 'react';
-import useCommonStore from '../../stores/common';
 import { doc, getDoc } from 'firebase/firestore';
 import { firebaseDatabase } from '../../services/firebase';
 
 const ExperimentAnalyzer = () => {
-  const { expType, expId } = useParams();
-  const user = useCommonStore((state) => state.user);
+  const { expType, userId, expId } = useParams();
 
   const [experiment, setExperiment] = useState<any>(null);
 
@@ -24,10 +22,10 @@ const ExperimentAnalyzer = () => {
   };
 
   useEffect(() => {
-    if (user && expId) {
-      fetchExperiment(user.id, expId);
+    if (expType === ExperimentType.Image && userId && expId) {
+      fetchExperiment(userId, expId);
     }
-  }, [user?.id, expId]);
+  }, [expType, userId, expId]);
 
   const showPlayer = () => {
     switch (expType) {
@@ -47,8 +45,15 @@ const ExperimentAnalyzer = () => {
     }
   };
 
-  console.log(experiment);
-  return <div>{showPlayer()}</div>;
+  console.log('experiment', experiment);
+  return (
+    <div className="experiment-analyzer">
+      <div className="left-content">left</div>
+      <div className="right-content">
+        <>{showPlayer()}</>
+      </div>
+    </div>
+  );
 };
 
 export default ExperimentAnalyzer;
