@@ -1,6 +1,7 @@
 import { getBlob, ref } from 'firebase/storage';
 import React, { useEffect, useState } from 'react';
 import { firebaseStorage } from '../../services/firebase';
+import useCommonStore from '../../stores/common';
 
 interface CardProps {
   id: string;
@@ -12,24 +13,26 @@ const Card = React.memo(({ id, url, displayName }: CardProps) => {
   const [dataURL, setDataURL] = useState<any>(null);
 
   const load = async (url: string) => {
-    const blob = await getBlob(ref(firebaseStorage, url));
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const res = reader.result;
-      setDataURL(res);
-      if (res && new Blob([res.toString()]).size < 100000) {
-        localStorage.setItem(url, res.toString());
-      }
-    };
-    reader.readAsDataURL(blob);
+    try {
+      const blob = await getBlob(ref(firebaseStorage, url));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const res = reader.result;
+        if (res) {
+          setDataURL(res);
+          useCommonStore.getState().setImageCache(url, res);
+        }
+      };
+      reader.readAsDataURL(blob);
+    } catch (e) {}
   };
 
   useEffect(() => {
-    const data = localStorage.getItem(url);
-    if (!data) {
-      load(url);
+    if (useCommonStore.getState().imageCache.has(url)) {
+      const res = useCommonStore.getState().imageCache.get(url);
+      setDataURL(res);
     } else {
-      setDataURL(data);
+      load(url);
     }
   }, [url]);
 

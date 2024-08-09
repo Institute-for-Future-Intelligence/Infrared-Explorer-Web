@@ -34,13 +34,7 @@ const ExperimentAnalyzer = () => {
       }
       case ExperimentType.Image: {
         if (!experiment) return null;
-        return (
-          <ImagePlayer
-            recordingId={experiment.recordingId}
-            duration={experiment.duration}
-            currFrameNumber={experiment.currentFrameNumber}
-          />
-        );
+        return <ImagePlayer experiment={experiment} />;
       }
     }
   };

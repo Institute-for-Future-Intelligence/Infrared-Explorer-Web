@@ -43,16 +43,18 @@ const MyExperimentsList = () => {
 
   return (
     <CardListWrapper onClick={handleClick}>
-      {experiments.map((exp) => {
-        return (
-          <Card
-            key={exp.id}
-            id={exp.id}
-            url={`recordings/${exp.recordingId}/data_1.png`}
-            displayName={exp.displayName}
-          />
-        );
-      })}
+      {experiments
+        .filter((e) => !e.segments)
+        .map((exp) => {
+          return (
+            <Card
+              key={exp.id}
+              id={exp.id}
+              url={`recordings/${exp.recordingId}/data_1.png`}
+              displayName={exp.displayName}
+            />
+          );
+        })}
     </CardListWrapper>
   );
 };

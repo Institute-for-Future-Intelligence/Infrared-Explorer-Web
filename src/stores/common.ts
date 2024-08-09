@@ -8,6 +8,9 @@ interface CommonStoreState {
   setStore: (fn: (state: CommonStoreState) => void) => void;
   user: User | null;
   setUser: (user: User | null) => void;
+
+  imageCache: Map<string, string | ArrayBuffer>;
+  setImageCache: (url: string, res: string | ArrayBuffer) => void;
 }
 
 const useCommonStore = create<CommonStoreState>()((set) => {
@@ -19,6 +22,13 @@ const useCommonStore = create<CommonStoreState>()((set) => {
     setUser(user: User | null) {
       immerSet((state) => {
         state.user = user;
+      });
+    },
+
+    imageCache: new Map(),
+    setImageCache(url, res) {
+      immerSet((state) => {
+        state.imageCache.set(url, res);
       });
     },
   };

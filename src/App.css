@@ -24,6 +24,10 @@ body {
   background-color: rgb(234, 234, 234);
 }
 
+.header .goback-arrow {
+  position: absolute;
+  left: 16px;
+}
 .header .title {
   position: relative;
 }

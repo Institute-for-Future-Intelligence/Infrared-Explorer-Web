@@ -1,28 +1,25 @@
 import { getBlob, ref } from 'firebase/storage';
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { firebaseStorage } from '../../../services/firebase';
 import ControlBar from './controlBar';
-import { debounce, throttle } from 'lodash';
+import { throttle } from 'lodash';
 
 type ImageSrc = string | undefined;
 
 interface Props {
-  recordingId: string;
-  currFrameNumber: number;
-  duration: number;
+  experiment: any;
 }
 
-const ImagePlayer = ({ recordingId, currFrameNumber, duration }: Props) => {
-  const { expId } = useParams();
+const ImagePlayer = ({ experiment }: Props) => {
+  const { recordingId, currentFrameNumber, duration, segments } = experiment;
+
+  const totalFrameNumber = duration * 5;
 
   const imagesRef = useRef<ImageSrc[]>([]);
 
-  const currFrameIdxRef = useRef(currFrameNumber);
+  const currFrameIdxRef = useRef(currentFrameNumber - 1);
 
   const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>();
-
-  const totalFrameNumber = duration * 5;
 
   const fetchImageAsBlob = async (index: number) => {
     const blob = await getBlob(ref(firebaseStorage, `recordings/${recordingId}/data_${index + 1}.png`));
@@ -62,9 +59,17 @@ const ImagePlayer = ({ recordingId, currFrameNumber, duration }: Props) => {
     preload(index + 1);
   };
 
+  const mapToOriginalFrameIdx = (currFrameIdx: number) => {
+    const segmentMap = new Map();
+  };
+
+  const init = async () => {
+    loadFrame(currFrameIdxRef.current);
+  };
+
   // init
   useEffect(() => {
-    loadFrame(currFrameIdxRef.current);
+    init();
   }, []);
 
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
