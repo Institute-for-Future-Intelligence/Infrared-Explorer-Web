@@ -1,11 +1,13 @@
 {
   "name": "infrared-explorer-web",
   "private": true,
+  "homepage": "https://institute-for-future-intelligence.github.io/infrared-explorer-web",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "start": "vite",
     "build": "tsc -b && vite build",
+    "deploy": "gh-pages -d dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prepare": "husky"
@@ -44,6 +46,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "gh-pages": "^6.1.1",
     "husky": "^9.1.1",
     "lint-staged": "^15.2.7",
     "prettier": "3.3.3",
