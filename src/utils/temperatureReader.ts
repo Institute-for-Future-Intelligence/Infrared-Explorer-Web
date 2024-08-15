@@ -3,7 +3,7 @@
  */
 
 import Pako from 'pako';
-import { ExperimentThermalUnits } from '../types';
+import { TemperatureUnit } from '../types';
 import { INTSIZE, IR_ARRAY_HEIGHT, IR_ARRAY_WIDTH } from './constants';
 import { celsiusToFahrenheit, kelvinToCelsius } from './helpers';
 
@@ -81,27 +81,18 @@ import { celsiusToFahrenheit, kelvinToCelsius } from './helpers';
 //   return unit === ExperimentThermalUnits.fahrenheit ? celsiusToFahrenheit(temp) : temp;
 // };
 
-export const getTempFromFrameData = (
-  arryBuffer: ArrayBufferLike,
-  unit: ExperimentThermalUnits = ExperimentThermalUnits.celsius,
-) => {
+export const getTempFromFrameData = (arryBuffer: ArrayBufferLike, unit: TemperatureUnit = TemperatureUnit.celsius) => {
   const arrBuf = Pako.inflate(arryBuffer);
   return readArrayBufferSegment(arrBuf.buffer, 0, IR_ARRAY_WIDTH * IR_ARRAY_HEIGHT).map((d) => {
     const temp = kelvinToCelsius(d / 100);
-    return (unit === ExperimentThermalUnits.fahrenheit ? celsiusToFahrenheit(temp) : temp).toFixed(2);
+    return Number((unit === TemperatureUnit.fahrenheit ? celsiusToFahrenheit(temp) : temp).toFixed(2));
   });
 };
 
-export const getTempFromFrameDataAtPosition = async (
-  arrBuf: ArrayBufferLike,
-  x: number,
-  y: number,
-  unit: ExperimentThermalUnits = ExperimentThermalUnits.celsius,
-) => {
-  const xAbs = Math.floor(x * IR_ARRAY_WIDTH);
-  const yAbs = Math.floor(y * IR_ARRAY_HEIGHT);
-  const t = kelvinToCelsius(readArrayBufferPoint(arrBuf, yAbs * IR_ARRAY_WIDTH + xAbs) / 100);
-  return unit === ExperimentThermalUnits.fahrenheit ? celsiusToFahrenheit(t) : t;
+export const getTemperatureAtPosition = (temperatures: number[], x: number, y: number) => {
+  const ix = Math.floor(x * IR_ARRAY_WIDTH);
+  const iy = Math.floor(y * IR_ARRAY_HEIGHT);
+  return temperatures[ix + iy * IR_ARRAY_WIDTH];
 };
 
 export const readArrayBufferSegment = (arrBuf: ArrayBufferLike, begin: number, length: number) => {

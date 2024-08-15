@@ -5,18 +5,20 @@ import { Experiment, ExperimentType, Thermometer } from '../../types';
 import { useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { firebaseDatabase } from '../../services/firebase';
+import useCommonStore from '../../stores/common';
 
 const ExperimentAnalyzer = () => {
   const { expType, userId, expId } = useParams();
 
-  const [experiment, setExperiment] = useState<Experiment>(null);
-  const [thermometers, setThermometers] = useState<Thermometer[]>([]);
+  const experiment = useCommonStore((state) => (expId ? state.experimentMap.get(expId) : undefined));
+  const [thermometersId, setThermometersId] = useState<string[]>([]);
 
   const fetchExperiment = async (userId: string, expId: string) => {
     const docRef = doc(firebaseDatabase, `users/${userId}/experiments/${expId}`);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      setExperiment(docSnap.data());
+      const experiment = docSnap.data() as Experiment;
+      useCommonStore.getState().setExperiment(experiment.id, experiment);
     } else {
       console.log('no such document');
     }
@@ -26,12 +28,13 @@ const ExperimentAnalyzer = () => {
     const querySnapshot = await getDocs(
       collection(firebaseDatabase, `users/${userId}/experiments/${expId}/thermometers`),
     );
-    const thermometers: Thermometer[] = [];
+    const ids: string[] = [];
     querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      thermometers.push(doc.data());
+      const thermometer = doc.data() as Thermometer;
+      useCommonStore.getState().setThermometer(thermometer.id, thermometer);
+      ids.push(thermometer.id);
     });
-    setThermometers(thermometers);
+    setThermometersId([...ids]);
   };
 
   useEffect(() => {
@@ -49,20 +52,15 @@ const ExperimentAnalyzer = () => {
       }
       case ExperimentType.Image: {
         if (!experiment) return null;
-        return <ImagePlayer experiment={experiment} thermometers={thermometers} />;
+        return <ImagePlayer experiment={experiment} thermometersId={thermometersId} />;
       }
     }
   };
 
-  console.log('experiment', experiment);
-  console.log('thermometers', thermometers);
-
   return (
     <div className="experiment-analyzer">
       <div className="left-content">left</div>
-      <div className="right-content">
-        <>{showPlayer()}</>
-      </div>
+      <div className="right-content">{showPlayer()}</div>
     </div>
   );
 };
