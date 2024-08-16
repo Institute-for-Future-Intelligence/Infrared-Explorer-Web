@@ -4,16 +4,11 @@ import { firebaseStorage } from '../../../services/firebase';
 import ControlBar from './controlBar';
 import { throttle } from 'lodash';
 import { useMappingIndex } from '../hooks';
-import { Experiment, Thermometer } from '../../../types';
-import Pako from 'pako';
-import { INTSIZE, IR_ARRAY_HEIGHT, IR_ARRAY_WIDTH } from '../../../utils/constants';
-import {
-  getTemperatureAtPosition,
-  getTempFromFrameData,
-  readArrayBufferSegment,
-} from '../../../utils/temperatureReader';
-import Thermometers, { THERMOMETERS_WRAPPER_ID } from '../thermometers/thermometers';
+import { Experiment } from '../../../types';
+import { getTemperatureAtPosition, getTempFromFrameData } from '../../../utils/temperatureReader';
+import Thermometers from '../thermometers/thermometers';
 import useCommonStore from '../../../stores/common';
+import ChartManager from '../charts/chartManager';
 
 type ImageSrc = string | undefined;
 
@@ -193,25 +188,31 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
 
   if (!currFrameImg) return null;
   return (
-    <div className="image-player-wrapper">
-      <div className="image-player">
-        <div className="image-wrapper">
-          <img className="current-frame-image" src={currFrameImg} />
-
-          <Thermometers thermometersId={thermometersId} onUpdate={updateThermoemterByPosition} />
-        </div>
-
-        <ControlBar
-          isPlaying={isPlaying}
-          currFrameIndex={currFrameIdxRef.current}
-          lastFrameIndex={lastFrameIndex}
-          onClickPlayButton={handleClickPlayButton}
-          onSlide={throttle(handleSlide, 100)}
-        />
+    <>
+      <div className="chart-manager-wrapper">
+        <ChartManager thermometersId={thermometersId} />
       </div>
 
-      <div className="tool-bar"></div>
-    </div>
+      <div className="image-player-wrapper">
+        <div className="image-player">
+          <div className="image-wrapper">
+            <img className="current-frame-image" src={currFrameImg} />
+
+            <Thermometers thermometersId={thermometersId} onUpdate={updateThermoemterByPosition} />
+          </div>
+
+          <ControlBar
+            isPlaying={isPlaying}
+            currFrameIndex={currFrameIdxRef.current}
+            lastFrameIndex={lastFrameIndex}
+            onClickPlayButton={handleClickPlayButton}
+            onSlide={throttle(handleSlide, 100)}
+          />
+        </div>
+
+        <div className="tool-bar"></div>
+      </div>
+    </>
   );
 };
 

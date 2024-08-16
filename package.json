@@ -35,6 +35,7 @@
     "react-draggable": "^4.4.6",
     "react-player": "^2.16.0",
     "react-router-dom": "^6.25.1",
+    "recharts": "^2.13.0-alpha.4",
     "styled-components": "^6.1.12",
     "vite-plugin-svgr": "^4.2.0",
     "zustand": "^4.5.4"

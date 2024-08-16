@@ -1,11 +1,18 @@
 import { useParams } from 'react-router-dom';
 import VideoPlayer from './videoPlayer';
 import ImagePlayer from './imagePlayer/imagePlayer';
-import { Experiment, ExperimentType, Thermometer } from '../../types';
+import { Experiment, ExperimentType, TemperatureUnit, Thermometer } from '../../types';
 import { useEffect, useState } from 'react';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { firebaseDatabase } from '../../services/firebase';
 import useCommonStore from '../../stores/common';
+
+const fakeThermometers: Thermometer[] = [
+  { id: 'fake-id-001', x: 0.1, y: 0.25, value: 0, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-002', x: 0.5, y: 0.5, value: 10, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-003', x: 0.91, y: 0.85, value: 20, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-004', x: 0.5, y: 0.9, value: 15, unit: TemperatureUnit.celsius },
+];
 
 const ExperimentAnalyzer = () => {
   const { expType, userId, expId } = useParams();
@@ -31,6 +38,10 @@ const ExperimentAnalyzer = () => {
     const ids: string[] = [];
     querySnapshot.forEach((doc) => {
       const thermometer = doc.data() as Thermometer;
+      useCommonStore.getState().setThermometer(thermometer.id, thermometer);
+      ids.push(thermometer.id);
+    });
+    fakeThermometers.forEach((thermometer) => {
       useCommonStore.getState().setThermometer(thermometer.id, thermometer);
       ids.push(thermometer.id);
     });
