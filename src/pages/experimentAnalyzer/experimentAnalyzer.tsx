@@ -8,17 +8,17 @@ import { firebaseDatabase } from '../../services/firebase';
 import useCommonStore from '../../stores/common';
 
 const fakeThermometers: Thermometer[] = [
-  { id: 'fake-id-001', x: 0.1, y: 0.25, value: 0, unit: TemperatureUnit.celsius },
-  { id: 'fake-id-002', x: 0.5, y: 0.5, value: 10, unit: TemperatureUnit.celsius },
-  { id: 'fake-id-003', x: 0.91, y: 0.85, value: 20, unit: TemperatureUnit.celsius },
-  { id: 'fake-id-004', x: 0.5, y: 0.9, value: 15, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-001', x: 0.1, y: 0.25, value: 999, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-002', x: 0.5, y: 0.5, value: 999, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-003', x: 0.91, y: 0.85, value: 999, unit: TemperatureUnit.celsius },
+  { id: 'fake-id-004', x: 0.5, y: 0.9, value: 999, unit: TemperatureUnit.celsius },
 ];
 
 const ExperimentAnalyzer = () => {
   const { expType, userId, expId } = useParams();
 
   const experiment = useCommonStore((state) => (expId ? state.experimentMap.get(expId) : undefined));
-  const [thermometersId, setThermometersId] = useState<string[]>([]);
+  const [thermometersId, setThermometersId] = useState<string[] | null>(null);
 
   const fetchExperiment = async (userId: string, expId: string) => {
     const docRef = doc(firebaseDatabase, `users/${userId}/experiments/${expId}`);
@@ -62,12 +62,13 @@ const ExperimentAnalyzer = () => {
         return <VideoPlayer />;
       }
       case ExperimentType.Image: {
-        if (!experiment) return null;
+        if (!experiment || !thermometersId) return null;
         return <ImagePlayer experiment={experiment} thermometersId={thermometersId} />;
       }
     }
   };
 
+  console.log('exp', experiment);
   return (
     <div className="experiment-analyzer">
       <div className="left-content">left</div>

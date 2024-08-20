@@ -9,16 +9,18 @@ interface CommonStoreState {
   user: User | null;
   setUser: (user: User | null) => void;
 
+  // only for thumbnail for now
   imageCache: Map<string, string | ArrayBuffer>;
   setImageCache: (url: string, res: string | ArrayBuffer) => void;
 
   experimentMap: Map<string, Experiment>;
   setExperiment: (id: string, experiment: Experiment) => void;
+
   thermometerMap: Map<string, Thermometer>;
   setThermometer: (id: string, thermometer: Thermometer) => void;
 }
 
-const useCommonStore = create<CommonStoreState>()((set) => {
+const useCommonStore = create<CommonStoreState>()((set, get) => {
   const immerSet: CommonStoreState['setStore'] = (fn) => set(produce(fn));
 
   return {

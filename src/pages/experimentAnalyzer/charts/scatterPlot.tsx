@@ -1,5 +1,6 @@
 import { CartesianGrid, Label, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis } from 'recharts';
 import useCommonStore from '../../../stores/common';
+import { CHART_MARGIN } from '../../../utils/constants';
 
 interface Props {
   type: 'X' | 'Y';
@@ -9,15 +10,17 @@ interface Props {
 const ScatterPlot = ({ thermometersId, type }: Props) => {
   const thermometerMap = useCommonStore((state) => state.thermometerMap);
 
-  const data = thermometersId.map((id) => {
-    const thermometer = thermometerMap.get(id);
-    if (!thermometer) return { x: 0, y: 0 };
-    if (type === 'X') {
-      return { x: thermometer.x, y: thermometer.value };
-    } else {
-      return { x: thermometer.y, y: 1 - thermometer.value };
-    }
-  });
+  const data = thermometersId
+    .map((id) => {
+      const thermometer = thermometerMap.get(id);
+      if (!thermometer) return { x: -1, y: 0 };
+      if (type === 'X') {
+        return { x: thermometer.x, y: thermometer.value };
+      } else {
+        return { x: 1 - thermometer.y, y: thermometer.value };
+      }
+    })
+    .filter((d) => d.x !== -1);
 
   const unit = '°C';
   const labelText = type === 'X' ? 'Width' : 'Height';
@@ -25,21 +28,14 @@ const ScatterPlot = ({ thermometersId, type }: Props) => {
   return (
     <div className="chart-container">
       <ResponsiveContainer width="100%" height={'100%'}>
-        <ScatterChart
-          margin={{
-            top: 10,
-            right: 20,
-            bottom: 20,
-            left: 0,
-          }}
-        >
+        <ScatterChart margin={CHART_MARGIN}>
           <CartesianGrid />
 
           <XAxis dataKey="x" name="X" type="number" domain={[0, 1]} allowDataOverflow={true}>
             <Label value={`${type} (Image ${labelText})`} offset={-5} position="bottom" />
           </XAxis>
           <YAxis dataKey="y" name="T" type="number">
-            <Label value={`T (${unit})`} angle={-90} position={'center'} />
+            <Label value={`T (${unit})`} angle={-90} position={'center'} dx={-5} />
           </YAxis>
 
           <Tooltip

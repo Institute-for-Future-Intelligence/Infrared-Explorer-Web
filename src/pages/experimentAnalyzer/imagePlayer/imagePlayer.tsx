@@ -2,13 +2,14 @@ import { getBlob, getBytes, ref } from 'firebase/storage';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { firebaseStorage } from '../../../services/firebase';
 import ControlBar from './controlBar';
-import { throttle } from 'lodash';
+import { max, throttle } from 'lodash';
 import { useMappingIndex } from '../hooks';
-import { Experiment } from '../../../types';
-import { getTemperatureAtPosition, getTempFromFrameData } from '../../../utils/temperatureReader';
+import { Experiment, ExperimentGraphOption } from '../../../types';
+import { getTemperatureAtPosition, getTempFromArrayBuffer } from '../../../utils/temperatureReader';
 import Thermometers from '../thermometers/thermometers';
 import useCommonStore from '../../../stores/common';
 import ChartManager from '../charts/chartManager';
+import ToolBar from './toolBar';
 
 type ImageSrc = string | undefined;
 
@@ -18,7 +19,7 @@ interface Props {
 }
 
 const ImagePlayer = ({ experiment, thermometersId }: Props) => {
-  const { recordingId, currentFrameNumber, duration, segments } = experiment;
+  const { recordingId, currentFrameNumber = 1, duration, segments, graphsOptions } = experiment;
   const delay = useMemo(() => {
     const FPS = 5;
     return (1 / FPS) * 1000;
@@ -28,7 +29,7 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
   const { lastFrameIndex, getRecordingIndex } = useMappingIndex(segments, duration);
 
   const cacheImageRef = useRef<ImageSrc[]>([]);
-  const cacheTemperaturesRef = useRef<number[][]>([]);
+  const cacheThermoArrayBufferRef = useRef<ArrayBuffer[]>([]);
 
   const currFrameIdxRef = useRef(currentFrameNumber - 1);
 
@@ -41,25 +42,47 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
    */
   const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>();
 
-  const needThermoData = thermometersId.length > 0;
+  const [plotThermoData, setPlotThermoData] = useState<ArrayBuffer[] | null>(null);
+
+  const showLineplotThremoData = graphsOptions?.includes(ExperimentGraphOption.time);
+  const needCurrFrameThermoData = thermometersId.length > 0;
 
   const fetchThermoData = async (index: number) => {
+    if (cacheThermoArrayBufferRef.current[index]) return cacheThermoArrayBufferRef.current[index];
     const mappedIndex = getRecordingIndex(index);
-    const arrayBuffer = await getBytes(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex}.dat`));
-    return getTempFromFrameData(arrayBuffer);
+    return await getBytes(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex}.dat`));
   };
 
-  const loadTemperatures = async (index: number) => {
-    const temperatures = await fetchThermoData(index);
-    cacheTemperaturesRef.current[index] = temperatures;
+  const LIMIT = 25;
+  const maxPoints = Math.min(LIMIT, lastFrameIndex + 1);
+  const step = Math.floor((lastFrameIndex + 1) / maxPoints);
+
+  // todo: sample function
+  const loadThermoDataForPlot = async () => {
+    const arraybufferData = await Promise.all(
+      Array(maxPoints)
+        .fill(0)
+        .map(async (v, i) => fetchThermoData(Math.min(lastFrameIndex, i * step))),
+    );
+
+    setPlotThermoData(arraybufferData);
+    arraybufferData.forEach((data, i) => {
+      cacheThermoArrayBufferRef.current[Math.min(lastFrameIndex, i * step)] = data;
+    });
   };
 
-  const updateThermometersOnFrame = (index: number) => {
+  const loadThermoDataOnFrame = async (index: number) => {
+    if (cacheThermoArrayBufferRef.current[index]) return;
+    const arrayBuffer = await fetchThermoData(index);
+    cacheThermoArrayBufferRef.current[index] = arrayBuffer;
+  };
+
+  const updateThermometersByFrame = (index: number) => {
     useCommonStore.getState().setStore((state) => {
       for (const thermometerId of thermometersId) {
         const thermometer = state.thermometerMap.get(thermometerId);
         if (thermometer) {
-          const temperatures = cacheTemperaturesRef.current[index];
+          const temperatures = cacheThermoArrayBufferRef.current[index];
           thermometer.value = getTemperatureAtPosition(temperatures, thermometer.x, thermometer.y);
         }
       }
@@ -73,8 +96,8 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
       if (thermometer) {
         thermometer.x = x;
         thermometer.y = y;
-        const temperatures = cacheTemperaturesRef.current[currFrameIdxRef.current];
-        thermometer.value = getTemperatureAtPosition(temperatures, x, y);
+        const arrayBuffer = cacheThermoArrayBufferRef.current[currFrameIdxRef.current];
+        thermometer.value = getTemperatureAtPosition(arrayBuffer, x, y);
       }
     });
   };
@@ -103,8 +126,8 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
       if (!cacheImageRef.current[i]) {
         loadImage(i);
       }
-      if (needThermoData && !cacheTemperaturesRef.current[i]) {
-        loadTemperatures(i);
+      if (needCurrFrameThermoData) {
+        loadThermoDataOnFrame(i);
       }
     }
   };
@@ -116,27 +139,46 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
   };
 
   const updateFrame = async (index: number) => {
+    currFrameIdxRef.current = index;
     if (cacheImageRef.current[index]) {
       updateImage(index);
     } else {
       loadImage(index, () => updateImage(index));
     }
-    if (needThermoData) {
-      if (!cacheTemperaturesRef.current[index]) {
-        await loadTemperatures(index);
-      }
-      updateThermometersOnFrame(index);
+    // has thermometer
+    if (needCurrFrameThermoData) {
+      await loadThermoDataOnFrame(index);
+      updateThermometersByFrame(index);
     }
+  };
+
+  const init = async () => {
+    loadImage(currFrameIdxRef.current, () => updateImage(currFrameIdxRef.current));
+    // has thermometer
+    if (needCurrFrameThermoData) {
+      await loadThermoDataOnFrame(currFrameIdxRef.current);
+    }
+    // has line plot
+    if (showLineplotThremoData) {
+      await loadThermoDataForPlot();
+    }
+    preloadFrame(currFrameIdxRef.current + 1);
   };
 
   // init
   useEffect(() => {
-    loadImage(currFrameIdxRef.current, () => updateImage(currFrameIdxRef.current));
-    if (needThermoData) {
-      loadTemperatures(currFrameIdxRef.current);
+    init();
+  }, [thermometersId]);
+
+  // toggle plot
+  useEffect(() => {
+    if (showLineplotThremoData) {
+      loadThermoDataForPlot();
+    } else {
+      // todo: don't need this
+      setPlotThermoData(null);
     }
-    preloadFrame(currFrameIdxRef.current + 1);
-  }, [needThermoData]);
+  }, [showLineplotThremoData]);
 
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -190,7 +232,14 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
   return (
     <>
       <div className="chart-manager-wrapper">
-        <ChartManager thermometersId={thermometersId} />
+        <ChartManager
+          thermometersId={thermometersId}
+          thermoArrayBufferData={plotThermoData}
+          step={step}
+          currFrameIndex={currFrameIdxRef.current}
+          updateFrame={updateFrame}
+          graphsOptions={graphsOptions}
+        />
       </div>
 
       <div className="image-player-wrapper">
@@ -210,7 +259,9 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
           />
         </div>
 
-        <div className="tool-bar"></div>
+        <div className="tool-bar">
+          <ToolBar expId={experiment.id} graphsOptions={graphsOptions} />
+        </div>
       </div>
     </>
   );

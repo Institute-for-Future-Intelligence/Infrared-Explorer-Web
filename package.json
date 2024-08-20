@@ -26,6 +26,7 @@
   "dependencies": {
     "@types/pako": "^2.0.3",
     "antd": "^5.19.4",
+    "exifreader": "^4.23.3",
     "firebase": "^10.12.4",
     "immer": "^10.1.1",
     "lodash": "^4.17.21",

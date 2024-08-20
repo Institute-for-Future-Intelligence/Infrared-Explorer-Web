@@ -172,11 +172,7 @@ body {
   color: red;
 }
 
-.tool-bar {
-  flex-shrink: 0;
-  width: 50px;
-  background-color: rgb(45, 45, 45);
-}
+
 
 #thermometers-wrapper {
   position: absolute;
@@ -233,4 +229,28 @@ body {
 
 .chart-container {
   flex: 1;
+  min-height: 150px;
+}
+
+/* tool bar */
+.tool-bar {
+  flex-shrink: 0;
+  width: 50px;
+  /* background-color: 'white'; */
+  background-color: rgb(45, 45, 45);
+}
+
+.tool-bar-button-SVG {
+  width: 100%;
+  height: auto;
+  padding: 4px 2px;
+  stroke: white;
+  fill: white;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tool-bar-button-SVG:hover {
+  background-color: grey;
+  border-radius: 15%;
 }
