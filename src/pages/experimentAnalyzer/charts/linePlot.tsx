@@ -1,7 +1,6 @@
 import {
   CartesianGrid,
   Label,
-  Legend,
   Line,
   LineChart,
   ReferenceLine,
@@ -12,7 +11,7 @@ import {
 } from 'recharts';
 import { CHART_MARGIN, PRESET_COLORS } from '../../../utils/constants';
 import useCommonStore from '../../../stores/common';
-import { Thermometer } from '../../../types';
+import { LineplotData, Thermometer } from '../../../types';
 import React, { useEffect, useState } from 'react';
 import { getTemperatureAtPosition } from '../../../utils/temperatureReader';
 
@@ -20,28 +19,25 @@ const unit = '°C';
 
 interface WrapperProps {
   thermometersId: string[];
-  thermoArrayBufferData: ArrayBuffer[];
-  step: number;
+  thermalData: LineplotData;
   currFrameIndex: number;
   updateFrame: (index: number) => void;
 }
 
 interface Props {
   thermometers: Thermometer[];
-  thermoArrayBufferData: ArrayBuffer[];
-  step: number;
+  thermalData: LineplotData;
   currFrameIndex: number;
   updateFrame: (index: number) => void;
 }
 
-const Wrapper = ({ thermometersId, thermoArrayBufferData, step, currFrameIndex, updateFrame }: WrapperProps) => {
+const Wrapper = ({ thermometersId, thermalData, currFrameIndex, updateFrame }: WrapperProps) => {
   const thermometerMap = useCommonStore((state) => state.thermometerMap);
   const thermometers = thermometersId.map((id) => thermometerMap.get(id)).filter((v) => v !== undefined);
   return (
     <LinePlot
       thermometers={thermometers}
-      thermoArrayBufferData={thermoArrayBufferData}
-      step={step}
+      thermalData={thermalData}
       currFrameIndex={currFrameIndex}
       updateFrame={updateFrame}
     />
@@ -49,13 +45,13 @@ const Wrapper = ({ thermometersId, thermoArrayBufferData, step, currFrameIndex, 
 };
 
 const LinePlot = React.memo(
-  ({ thermometers, thermoArrayBufferData, step, currFrameIndex, updateFrame }: Props) => {
+  ({ thermometers, thermalData, currFrameIndex, updateFrame }: Props) => {
     const [data, setData] = useState<any>(null);
 
     const init = async () => {
       const data: any = [];
-      thermoArrayBufferData.forEach((arrayBuffer, index) => {
-        const frameData = { time: (index * step * 0.2).toFixed(1) } as any;
+      thermalData.arrayBuffer.forEach((arrayBuffer, index) => {
+        const frameData = { time: (index * thermalData.step * thermalData.secondPerFrame).toFixed(1) } as any;
         thermometers.forEach((thermometer, index) => {
           frameData[`T${index}`] = getTemperatureAtPosition(arrayBuffer, thermometer.x, thermometer.y);
         });
@@ -66,11 +62,13 @@ const LinePlot = React.memo(
 
     useEffect(() => {
       init();
-    }, [thermometers, thermoArrayBufferData]);
+    }, [thermometers, thermalData]);
 
     let refX = '0.0';
     if (data) {
-      const index = data.map((d: any) => d.time).findIndex((t: string) => currFrameIndex / 5 < Number(t));
+      const index = data
+        .map((d: any) => d.time)
+        .findIndex((t: string) => currFrameIndex * thermalData.secondPerFrame < Number(t));
       if (index !== -1) {
         refX = data[index - 1].time;
       } else {
@@ -88,7 +86,7 @@ const LinePlot = React.memo(
             margin={CHART_MARGIN}
             onMouseDown={(data) => {
               if (data.activeLabel) {
-                updateFrame(Number(data.activeLabel) * 5);
+                updateFrame(Math.floor(Number(data.activeLabel) / thermalData.secondPerFrame));
               }
             }}
           >
@@ -119,7 +117,7 @@ const LinePlot = React.memo(
   },
   (prev, next) => {
     if (prev.currFrameIndex !== next.currFrameIndex) return false;
-    if (prev.thermoArrayBufferData !== next.thermoArrayBufferData) return false;
+    if (prev.thermalData !== next.thermalData) return false;
     if (prev.thermometers.length !== next.thermometers.length) return false;
     for (let i = 0; i < prev.thermometers.length; i++) {
       const pt = prev.thermometers[i];

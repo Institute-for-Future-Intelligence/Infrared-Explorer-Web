@@ -2,26 +2,25 @@ import { getBlob, getBytes, ref } from 'firebase/storage';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { firebaseStorage } from '../../../services/firebase';
 import ControlBar from './controlBar';
-import { max, throttle } from 'lodash';
+import { throttle } from 'lodash';
 import { useMappingIndex } from '../hooks';
-import { Experiment, ExperimentGraphOption } from '../../../types';
-import { getTemperatureAtPosition, getTempFromArrayBuffer } from '../../../utils/temperatureReader';
+import { Experiment, ExperimentGraphOption, LineplotData } from '../../../types';
+import { getTemperatureAtPosition } from '../../../utils/temperatureReader';
 import Thermometers from '../thermometers/thermometers';
 import useCommonStore from '../../../stores/common';
 import ChartManager from '../charts/chartManager';
-import ToolBar from './toolBar';
+import ToolBar from '../toolBar';
+import { FPS, LINTPLOT_DATAPOINT_LIMIT } from '../../../utils/constants';
 
 type ImageSrc = string | undefined;
 
 interface Props {
   experiment: Experiment;
-  thermometersId: string[];
 }
 
-const ImagePlayer = ({ experiment, thermometersId }: Props) => {
-  const { recordingId, currentFrameNumber = 1, duration, segments, graphsOptions } = experiment;
+const ImagePlayer = ({ experiment }: Props) => {
+  const { recordingId, currentFrameNumber = 1, duration, segments, graphsOptions, thermometersId } = experiment;
   const delay = useMemo(() => {
-    const FPS = 5;
     return (1 / FPS) * 1000;
   }, []);
 
@@ -42,38 +41,37 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
    */
   const [currFrameImg, setCurrFrameImg] = useState<ImageSrc>();
 
-  const [plotThermoData, setPlotThermoData] = useState<ArrayBuffer[] | null>(null);
+  const [lineplotThermoData, setLineplotThermoData] = useState<LineplotData | null>(null);
 
   const showLineplotThremoData = graphsOptions?.includes(ExperimentGraphOption.time);
   const needCurrFrameThermoData = thermometersId.length > 0;
 
-  const fetchThermoData = async (index: number) => {
+  const fetchThermalData = async (index: number) => {
     if (cacheThermoArrayBufferRef.current[index]) return cacheThermoArrayBufferRef.current[index];
     const mappedIndex = getRecordingIndex(index);
     return await getBytes(ref(firebaseStorage, `recordings/${recordingId}/data_${mappedIndex}.dat`));
   };
 
-  const LIMIT = 25;
-  const maxPoints = Math.min(LIMIT, lastFrameIndex + 1);
-  const step = Math.floor((lastFrameIndex + 1) / maxPoints);
-
   // todo: sample function
   const loadThermoDataForPlot = async () => {
-    const arraybufferData = await Promise.all(
+    const maxPoints = Math.min(LINTPLOT_DATAPOINT_LIMIT, lastFrameIndex + 1);
+    const step = Math.floor((lastFrameIndex + 1) / maxPoints);
+
+    const arrayBuffer = await Promise.all(
       Array(maxPoints)
         .fill(0)
-        .map(async (v, i) => fetchThermoData(Math.min(lastFrameIndex, i * step))),
+        .map(async (v, i) => fetchThermalData(Math.min(lastFrameIndex, i * step))),
     );
 
-    setPlotThermoData(arraybufferData);
-    arraybufferData.forEach((data, i) => {
+    setLineplotThermoData({ arrayBuffer, step, secondPerFrame: 1 / FPS });
+    arrayBuffer.forEach((data, i) => {
       cacheThermoArrayBufferRef.current[Math.min(lastFrameIndex, i * step)] = data;
     });
   };
 
-  const loadThermoDataOnFrame = async (index: number) => {
+  const loadThermalDataOnFrame = async (index: number) => {
     if (cacheThermoArrayBufferRef.current[index]) return;
-    const arrayBuffer = await fetchThermoData(index);
+    const arrayBuffer = await fetchThermalData(index);
     cacheThermoArrayBufferRef.current[index] = arrayBuffer;
   };
 
@@ -82,8 +80,8 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
       for (const thermometerId of thermometersId) {
         const thermometer = state.thermometerMap.get(thermometerId);
         if (thermometer) {
-          const temperatures = cacheThermoArrayBufferRef.current[index];
-          thermometer.value = getTemperatureAtPosition(temperatures, thermometer.x, thermometer.y);
+          const arrayBuffer = cacheThermoArrayBufferRef.current[index];
+          thermometer.value = getTemperatureAtPosition(arrayBuffer, thermometer.x, thermometer.y);
         }
       }
     });
@@ -127,7 +125,7 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
         loadImage(i);
       }
       if (needCurrFrameThermoData) {
-        loadThermoDataOnFrame(i);
+        loadThermalDataOnFrame(i);
       }
     }
   };
@@ -147,7 +145,7 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
     }
     // has thermometer
     if (needCurrFrameThermoData) {
-      await loadThermoDataOnFrame(index);
+      await loadThermalDataOnFrame(index);
       updateThermometersByFrame(index);
     }
   };
@@ -156,7 +154,7 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
     loadImage(currFrameIdxRef.current, () => updateImage(currFrameIdxRef.current));
     // has thermometer
     if (needCurrFrameThermoData) {
-      await loadThermoDataOnFrame(currFrameIdxRef.current);
+      await loadThermalDataOnFrame(currFrameIdxRef.current);
     }
     // has line plot
     if (showLineplotThremoData) {
@@ -167,16 +165,14 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
 
   // init
   useEffect(() => {
+    if (!recordingId) return;
     init();
-  }, [thermometersId]);
+  }, [recordingId]);
 
   // toggle plot
   useEffect(() => {
     if (showLineplotThremoData) {
       loadThermoDataForPlot();
-    } else {
-      // todo: don't need this
-      setPlotThermoData(null);
     }
   }, [showLineplotThremoData]);
 
@@ -234,8 +230,7 @@ const ImagePlayer = ({ experiment, thermometersId }: Props) => {
       <div className="chart-manager-wrapper">
         <ChartManager
           thermometersId={thermometersId}
-          thermoArrayBufferData={plotThermoData}
-          step={step}
+          thermalData={lineplotThermoData}
           currFrameIndex={currFrameIdxRef.current}
           updateFrame={updateFrame}
           graphsOptions={graphsOptions}

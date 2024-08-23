@@ -1,8 +1,8 @@
-import TimeGraphSVG from '../../../assets/time_graph.svg?react';
-import XGraphSVG from '../../../assets/x_graph.svg?react';
-import YGraphSVG from '../../../assets/y_graph.svg?react';
-import useCommonStore from '../../../stores/common';
-import { ControlBarButtons, ExperimentGraphOption } from '../../../types';
+import TimeGraphSVG from '../../assets/time_graph.svg?react';
+import XGraphSVG from '../../assets/x_graph.svg?react';
+import YGraphSVG from '../../assets/y_graph.svg?react';
+import useCommonStore from '../../stores/common';
+import { ExperimentGraphOption, ControlBarButtons } from '../../types';
 
 interface Props {
   expId: string;

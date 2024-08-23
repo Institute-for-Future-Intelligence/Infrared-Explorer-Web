@@ -26,8 +26,6 @@ const HomePage = () => {
           />
         );
       })}
-
-      {/* <Card key={'1'} id={'1'} url={'JPEG/test.jpg'} displayName='test' /> */}
     </CardListWrapper>
   );
 };

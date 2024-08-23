@@ -18,7 +18,7 @@ export enum TemperatureUnit {
 }
 
 export interface Experiment {
-  recordingId: string;
+  recordingId?: string;
   segments: { start: number; end: number }[];
 
   name: string; // this is the name of the file (the old MP4-based experiment needs this)
@@ -28,7 +28,7 @@ export interface Experiment {
   active: boolean; // the server side uses this name to indicate if the experiment is live
   viewCount?: number;
   disallowCopy?: boolean;
-  // subject: ExperimentSubjects | null;
+  subject: ExperimentSubjects | null;
   duration: number;
   currentPercent?: number; // remember the last viewed frame of a recorded MP4 experiment (in percentage)
   currentFrameNumber?: number;
@@ -44,7 +44,7 @@ export interface Experiment {
   readonly presetURL: string;
 
   graphsOptions?: ExperimentGraphOption[];
-  thermometers?: string[];
+  thermometersId: string[];
   // preset?: ExperimentPresetRawData;
   timeStamp?: string;
 
@@ -102,4 +102,62 @@ export enum ExperimentGraphOption {
   spaceY = 3,
   spaceR = 4,
   isotherm = 5,
+}
+
+export interface ShowcasePreset {
+  CurrentPercent: number;
+  GraphType: ExperimentGraphOption;
+  LineWidth: number;
+  LineColor: number;
+  SymbolRadius: number;
+  SymbolSpacing: number;
+  MinimumY: number;
+  MaximumY: number;
+  ShowIsotherms: boolean;
+  LabelBackground: boolean;
+
+  /** thermometers
+   * thermometer0.x
+   * thermometer0.y
+   * ...
+   */
+  [key: string]: any;
+}
+
+export interface ShowcaseData {
+  name: string;
+  id: string;
+  display_name: string;
+  author: string;
+  description: string;
+  subject: ExperimentSubjects;
+  duration: number;
+  date: string;
+
+  [key: string]: any;
+}
+
+export enum ExperimentSubjects {
+  NA = 'not available',
+  Chemistry = 'chemistry',
+  Physics = 'physics',
+  Biology = 'biology',
+}
+
+export enum ExperimentTypes {
+  Recording = 'recording', // legacy
+  Streaming = 'streaming',
+  LiveRecording = 'live-recording',
+}
+
+export interface Dimension {
+  width: number;
+  height: number;
+  size: number;
+}
+
+export interface LineplotData {
+  arrayBuffer: ArrayBuffer[];
+  step: number;
+  secondPerFrame: number;
 }

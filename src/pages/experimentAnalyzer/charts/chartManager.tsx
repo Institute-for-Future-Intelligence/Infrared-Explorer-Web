@@ -1,24 +1,16 @@
-import { ExperimentGraphOption } from '../../../types';
+import { ExperimentGraphOption, LineplotData } from '../../../types';
 import LinePlot from './linePlot';
 import ScatterPlot from './scatterPlot';
 
 interface Props {
   thermometersId: string[];
-  thermoArrayBufferData: ArrayBuffer[] | null;
-  step: number;
+  thermalData: LineplotData | null;
   updateFrame: (index: number) => void;
   currFrameIndex: number;
   graphsOptions: ExperimentGraphOption[] | undefined;
 }
 
-const ChartManager = ({
-  thermometersId,
-  thermoArrayBufferData,
-  step,
-  currFrameIndex,
-  graphsOptions,
-  updateFrame,
-}: Props) => {
+const ChartManager = ({ thermometersId, thermalData, currFrameIndex, graphsOptions, updateFrame }: Props) => {
   if (!graphsOptions || graphsOptions.length === 0) return null;
 
   return (
@@ -26,13 +18,12 @@ const ChartManager = ({
       {graphsOptions.map((option, idx) => {
         switch (option) {
           case ExperimentGraphOption.time: {
-            if (!thermoArrayBufferData) return null;
+            if (!thermalData) return null;
 
             return (
               <LinePlot
                 thermometersId={thermometersId}
-                thermoArrayBufferData={thermoArrayBufferData}
-                step={step}
+                thermalData={thermalData}
                 currFrameIndex={currFrameIndex}
                 updateFrame={updateFrame}
                 key={idx}

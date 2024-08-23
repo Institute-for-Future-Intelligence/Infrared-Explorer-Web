@@ -15,9 +15,9 @@ const ScatterPlot = ({ thermometersId, type }: Props) => {
       const thermometer = thermometerMap.get(id);
       if (!thermometer) return { x: -1, y: 0 };
       if (type === 'X') {
-        return { x: thermometer.x, y: thermometer.value };
+        return { x: thermometer.x, y: thermometer.value ?? 0 }; // showcase thermometer doesn't have initial value
       } else {
-        return { x: 1 - thermometer.y, y: thermometer.value };
+        return { x: 1 - thermometer.y, y: thermometer.value ?? 0 };
       }
     })
     .filter((d) => d.x !== -1);

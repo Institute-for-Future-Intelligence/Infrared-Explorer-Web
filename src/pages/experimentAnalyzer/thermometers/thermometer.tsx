@@ -24,7 +24,7 @@ const Wrapper = ({ id, index, onUpdate }: WrapperProps) => {
 };
 
 const ThermometerComponent = ({ thermometer, index, onUpdate }: ComponentProps) => {
-  const { id, x, y, value, unit } = thermometer;
+  const { id, x, y, value = 0, unit } = thermometer;
 
   const selected = false;
   const [hovered, setHovered] = useState(false);
@@ -42,7 +42,7 @@ const ThermometerComponent = ({ thermometer, index, onUpdate }: ComponentProps) 
       if (wrapperRef.current) {
         setDefaultPosition({ x: x * wrapperRef.current.clientWidth, y: y * wrapperRef.current.clientHeight });
       }
-    }, 200);
+    }, 500);
   }, []);
 
   if (!defaultPosition) return null;

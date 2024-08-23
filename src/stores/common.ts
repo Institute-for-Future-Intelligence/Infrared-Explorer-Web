@@ -9,9 +9,12 @@ interface CommonStoreState {
   user: User | null;
   setUser: (user: User | null) => void;
 
-  // only for thumbnail for now
+  // only cache thumbnail for now
   imageCache: Map<string, string | ArrayBuffer>;
   setImageCache: (url: string, res: string | ArrayBuffer) => void;
+
+  showcaseThermalCache: Map<string, ArrayBuffer[]>;
+  setShowcaseThermalCache: (id: string, data: ArrayBuffer[]) => void;
 
   experimentMap: Map<string, Experiment>;
   setExperiment: (id: string, experiment: Experiment) => void;
@@ -36,6 +39,13 @@ const useCommonStore = create<CommonStoreState>()((set, get) => {
     setImageCache(url, res) {
       immerSet((state) => {
         state.imageCache.set(url, res);
+      });
+    },
+
+    showcaseThermalCache: new Map(),
+    setShowcaseThermalCache(id, data) {
+      immerSet((state) => {
+        state.showcaseThermalCache.set(id, data);
       });
     },
 

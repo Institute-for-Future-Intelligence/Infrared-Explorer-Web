@@ -123,13 +123,25 @@ body {
   flex: 1;
   display: flex;
   justify-content: end;
-  border: solid red 3px;
+  /* border: solid red 3px; */
 }
 
 /* video player */
 .video-player-wrapper {
   max-height: calc(100vh - 90px);
   display: flex;
+}
+
+.video-player {
+  position: relative;
+}
+
+.video-player-thermometers{
+  position: absolute;
+  height: calc(100% - 70px);
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 /* image player */
@@ -172,15 +184,13 @@ body {
   color: red;
 }
 
-
-
 #thermometers-wrapper {
   position: absolute;
   height: 100%;
   width: 100%;
   top: 0;
   left: 0;
-  border: solid rgb(0, 250, 13) 5px;
+  /* border: solid rgb(0, 250, 13) 5px; */
 }
 
 #thermometers-canvas {
