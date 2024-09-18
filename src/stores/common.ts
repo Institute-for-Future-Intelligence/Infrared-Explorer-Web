@@ -1,6 +1,6 @@
 import { enableMapSet, produce } from 'immer';
 import { create } from 'zustand';
-import { Experiment, Thermometer, User } from '../types';
+import { ExpComment, Experiment, Thermometer, User } from '../types';
 
 enableMapSet();
 
@@ -21,6 +21,9 @@ interface CommonStoreState {
 
   thermometerMap: Map<string, Thermometer>;
   setThermometer: (id: string, thermometer: Thermometer) => void;
+
+  commentMap: Map<string, ExpComment>;
+  setComment: (id: string, comment: ExpComment) => void;
 }
 
 const useCommonStore = create<CommonStoreState>()((set, get) => {
@@ -59,6 +62,12 @@ const useCommonStore = create<CommonStoreState>()((set, get) => {
     setThermometer(id, thermometer) {
       immerSet((state) => {
         state.thermometerMap.set(id, thermometer);
+      });
+    },
+    commentMap: new Map(),
+    setComment(id, comment) {
+      immerSet((state) => {
+        state.commentMap.set(id, comment);
       });
     },
   };

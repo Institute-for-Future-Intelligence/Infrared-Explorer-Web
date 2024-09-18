@@ -1,7 +1,15 @@
 import { useParams } from 'react-router-dom';
 import VideoPlayer from './videoPlayer/videoPlayer';
 import ImagePlayer from './imagePlayer/imagePlayer';
-import { Experiment, ShowcasePreset, ShowcaseData, ExperimentType, TemperatureUnit, Thermometer } from '../../types';
+import {
+  Experiment,
+  ShowcasePreset,
+  ShowcaseData,
+  ExperimentType,
+  TemperatureUnit,
+  Thermometer,
+  ExpComment,
+} from '../../types';
 import { useEffect } from 'react';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { firebaseDatabase, firebaseStorage } from '../../services/firebase';
@@ -9,6 +17,8 @@ import useCommonStore from '../../stores/common';
 import showcases from '../../../db/showcases.json';
 import { getBlob, ref } from 'firebase/storage';
 import { parsePresetThermometer, parseShowcaseData } from '../../utils/showcaseReader';
+import { uploadComments, uploadRatings } from '../../services/upload';
+import InfoSection from './infoSection/infoSection';
 
 const fakeThermometers: Thermometer[] = [
   // { id: 'fake-id-001', x: 0.1, y: 0.25, value: 999, unit: TemperatureUnit.celsius },
@@ -30,9 +40,12 @@ const ExperimentAnalyzer = () => {
     if (docSnap.exists()) {
       const experiment = docSnap.data() as Experiment;
       const thermometers = await fetchThermometers(userId, expId);
-      useCommonStore
-        .getState()
-        .setExperiment(experiment.id, { ...experiment, thermometersId: thermometers.map((t) => t.id) });
+      const comments = await fetchComments(userId, expId);
+      useCommonStore.getState().setExperiment(experiment.id, {
+        ...experiment,
+        commentsId: comments.map((c) => c.id),
+        thermometersId: thermometers.map((t) => t.id),
+      });
     } else {
       console.log('can not find experiment', expId);
     }
@@ -54,6 +67,17 @@ const ExperimentAnalyzer = () => {
       thermometers.push(thermometer);
     });
     return thermometers;
+  };
+
+  const fetchComments = async (userId: string, expId: string) => {
+    const querySnapshot = await getDocs(collection(firebaseDatabase, `users/${userId}/experiments/${expId}/comments`));
+    const comments: ExpComment[] = [];
+    querySnapshot.forEach((doc) => {
+      const comment = doc.data() as ExpComment;
+      useCommonStore.getState().setComment(comment.id, comment);
+      comments.push(comment);
+    });
+    return comments;
   };
 
   //** Video Player */
@@ -92,7 +116,7 @@ const ExperimentAnalyzer = () => {
   }, [expType, userId, expId, experiment]);
 
   const showPlayer = () => {
-    if (!experiment) return <div>loading...</div>;
+    if (!experiment) return;
 
     switch (expType) {
       case ExperimentType.Video: {
@@ -105,9 +129,14 @@ const ExperimentAnalyzer = () => {
   };
 
   console.log('exp analyzer', experiment);
+
+  if (!experiment) return <div>loading...</div>;
+
   return (
     <div className="experiment-analyzer">
-      <div className="left-content">left</div>
+      <div className="left-content">
+        <InfoSection experiment={experiment} />
+      </div>
       <div className="right-content">{showPlayer()}</div>
     </div>
   );

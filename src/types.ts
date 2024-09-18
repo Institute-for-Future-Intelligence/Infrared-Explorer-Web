@@ -45,6 +45,7 @@ export interface Experiment {
 
   graphsOptions?: ExperimentGraphOption[];
   thermometersId: string[];
+  commentsId?: string[];
   // preset?: ExperimentPresetRawData;
   timeStamp?: string;
 
@@ -160,4 +161,19 @@ export interface LineplotData {
   arrayBuffer: ArrayBuffer[];
   step: number;
   secondPerFrame: number;
+}
+
+export interface RatingType {
+  id: string;
+  rating: number;
+  userId: string;
+}
+
+export interface ExpComment {
+  id: string;
+  date: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  reply?: ExpComment[];
 }

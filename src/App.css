@@ -115,8 +115,12 @@ body {
 
 .left-content {
   /* flex: 1; */
-  /* min-width: 200px; */
+  min-width: 260px;
   border: solid blue 3px;
+}
+
+.rating-wrapper {
+  margin-bottom: 8px;
 }
 
 .right-content {

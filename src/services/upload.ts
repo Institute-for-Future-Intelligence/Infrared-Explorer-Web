@@ -397,6 +397,100 @@ const users = [
   },
 ];
 
+const comments = [
+  {
+    id: '6077484ffdc91e0022fed267',
+    expID: '603c57ad6af85bfdd162e910',
+    content: 'z',
+    date: '04/14/2021 15:53',
+    senderID: '5fb99060cd30210004704d8c',
+    senderName: 'Xiaotong Ding',
+  },
+  {
+    id: '607249a88ac9e8002215f06e',
+    expID: '603d6c1c6af85bfdd1bd441e',
+    content: 'haha',
+    date: '04/10/2021 20:58',
+    senderID: '5fb99060cd30210004704d8c',
+    senderName: 'Xiaotong Ding',
+  },
+  {
+    id: '60774860fdc91e0022fed271',
+    expID: '604a482b6af85bfdd19076d0',
+    content: 'a',
+    date: '04/14/2021 15:54',
+    senderID: '5fb99060cd30210004704d8c',
+    senderName: 'Xiaotong Ding',
+  },
+  {
+    id: '607748a2fdc91e0022fed277',
+    expID: '604a482b6af85bfdd19076d0',
+    content: 'z',
+    date: '04/14/2021 15:55',
+    senderID: '5fb99060cd30210004704d8c',
+    senderName: 'Xiaotong Ding',
+  },
+  {
+    id: '607a11721750b00022aef170',
+    expID: '604a482b6af85bfdd19076d0',
+    content: 'hg',
+    date: '04/16/2021 18:36',
+    senderID: '5fb99060cd30210004704d8c',
+    senderName: 'Xiaotong Ding',
+  },
+];
+
+const ratings = [
+  {
+    id: '6072497b8ac9e8002215f05c',
+    expID: '603d6c1c6af85bfdd1bd441e',
+    userID: '5fb99060cd30210004704d8c',
+    rating: 5,
+  },
+  {
+    id: '6072497b8ac9e8002215f05b',
+    expID: '603d6c1c6af85bfdd1bd441e',
+    userID: '5fb99060cd30210004704d8c',
+    rating: 4,
+  },
+  {
+    id: '6072497b8ac9e8002215f05a',
+    expID: '603d6c1c6af85bfdd1bd441e',
+    userID: '5fb99060cd30210004704d8c',
+    rating: 2,
+  },
+  {
+    id: '6077482afdc91e0022fed256',
+    expID: '604a482b6af85bfdd19076d0',
+    userID: '5fb99060cd30210004704d8c',
+    rating: 3,
+  },
+];
+
+export const uploadRatings = async () => {
+  for (const rating of ratings) {
+    const r = { ...rating };
+    // @ts-ignore
+    delete r.expID;
+    await setDoc(
+      doc(firebaseDatabase, `users/60356e65473c670004e08033/experiments/${rating.expID}/ratings/${rating.id}`),
+      r,
+    );
+  }
+};
+
+export const uploadComments = async () => {
+  for (const comment of comments) {
+    const c = { ...comment };
+    // @ts-ignore
+    delete c['expID'];
+    await setDoc(
+      doc(firebaseDatabase, `users/60356e65473c670004e08033/experiments/${comment.expID}/comments/${comment.id}`),
+      c,
+    );
+  }
+};
+
 const uploadUser = async (user: any) => {
   const userDoc = { ...user };
   delete userDoc.experiments;
